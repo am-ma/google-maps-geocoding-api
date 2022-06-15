@@ -19,7 +19,7 @@ $ npm link
 
 ### command
 
-食わせるCSVのフォーマットは`address-example.csv`を参照
+食わせるCSVのフォーマットは`src/address.example.csv`を参照
 
 ```sh
 $ github-issues /path/to/address.csv
