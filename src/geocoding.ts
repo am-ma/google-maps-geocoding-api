@@ -25,6 +25,26 @@ const getGeocode = async (address: string): Promise<LatLngLiteral> => {
   }
 };
 
+const getGeocodeByAddressCsv = async (csvPath: string) => {
+  try {
+    const addressCsv = await loadAddressesFromCsv(csvPath);
+
+    const data = addressCsv.map(async (addressRow): Promise<TAddressCsvRow> => {
+      const {lat, lng} = await getGeocode(addressRow.address);
+
+      return {
+        ...addressRow,
+        lat: lat.toString(),
+        lng: lng.toString(),
+      };
+    });
+
+    await exportCsv(await Promise.all(data));
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const loadAddressesFromCsv = (csvPath: string): Promise<TAddressCsvRow[]> => 
   new Promise((resolve, reject) => {
     const data = [];
@@ -91,6 +111,7 @@ const exportCsv = (addressCsv: TAddressCsvRow[]): Promise<void> =>
 
 export {
   getGeocode,
+  getGeocodeByAddressCsv,
   loadAddressesFromCsv,
   exportCsv,
 };

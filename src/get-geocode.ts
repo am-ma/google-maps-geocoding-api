@@ -1,6 +1,13 @@
 #! /usr/bin/env node
 'use strict';
 
-import { getGeocode } from "./geocoding";
+import { getGeocodeByAddressCsv } from "./geocoding";
 
-getGeocode();
+const args = process.argv.slice(2);
+getGeocodeByAddressCsv(args[0])
+  .then(() => {
+    console.log("成功");
+  })
+  .catch((err) => {
+    console.log("失敗：" + err);
+  });
