@@ -1,4 +1,5 @@
-import { getGeocode, loadAddressesFromCsv } from "./geocoding";
+import { exportCsv, getGeocode, loadAddressesFromCsv } from "./geocoding";
+import { TAddressCsvRow } from "./type";
 
 describe('Geocoding', () => {
   // describe('getGeocode', () => {
@@ -26,4 +27,16 @@ describe('Geocoding', () => {
       });
     });
   });
+
+  // NOTE: 面倒なので手動テストする
+  // describe('loadAddressesFromCsv', () => {
+  //   it('should exported csv', async () => {
+  //     const addressCsv: TAddressCsvRow[] = [
+  //       {address: "address1", hoge: "hoge1", fuga: "fuga1"},
+  //       {address: "address2", hoge: "hoge2", fuga: ""},
+  //     ];
+  //     await exportCsv(addressCsv);
+  //     expect(true).toBeTruthy();
+  //   });
+  // });
 });

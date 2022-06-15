@@ -60,7 +60,37 @@ const loadAddressesFromCsv = (csvPath: string): Promise<TAddressCsvRow[]> =>
       });
   });
 
+const exportCsv = (addressCsv: TAddressCsvRow[]): Promise<void> => 
+  new Promise((resolve, reject) => {
+    if (addressCsv.length <= 0) {
+      throw new Error("CSVが空です。");
+    } 
+    const csvData = [
+      Object.keys(addressCsv[0]),
+      ...addressCsv.map(addressRow => Object.values(addressRow)),
+    ];
+    console.log(csvData);
+    csv.stringify(csvData, (error, output) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      const dateNow = new Date();
+      const now = `${dateNow.getFullYear()}${dateNow.getMonth() + 1}${dateNow.getDate()}${dateNow.getHours()}${dateNow.getMinutes()}${dateNow.getSeconds()}`;
+      const fileName = `geocode_${now}.csv`;
+      fs.writeFile(fileName, output, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        console.log(fileName+'を出力しました。');
+        resolve();
+      });
+    });
+  });
+
 export {
   getGeocode,
   loadAddressesFromCsv,
+  exportCsv,
 };
