@@ -26,8 +26,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.exportCsv = exports.loadAddressesFromCsv = exports.getGeocodeByAddressCsv = exports.getGeocode = void 0;
 const dotenv_1 = require("dotenv");
 const csv = __importStar(require("csv"));
+const fs = __importStar(require("fs"));
 const google_maps_services_js_1 = require("@googlemaps/google-maps-services-js");
-const fs = require("fs");
 const getApiKey = () => (0, dotenv_1.config)().parsed.GOOGLE_API_KEY;
 const getGeocode = async (address) => {
     const client = new google_maps_services_js_1.Client({});
@@ -43,6 +43,7 @@ const getGeocode = async (address) => {
     }
     catch (error) {
         console.log(error);
+        throw new Error(error);
     }
 };
 exports.getGeocode = getGeocode;
@@ -60,6 +61,7 @@ const getGeocodeByAddressCsv = async (csvPath) => {
         await exportCsv(await Promise.all(data));
     }
     catch (error) {
+        console.log(error);
         throw new Error(error);
     }
 };
@@ -70,14 +72,14 @@ const loadAddressesFromCsv = (csvPath) => new Promise((resolve, reject) => {
         .pipe(csv.parse((_, records) => {
         const csvHeader = records[0];
         const csvBody = records.slice(1);
-        const invalid = csvBody.some(row => row.length !== csvHeader.length
-            || csvHeader[0] !== 'address'
-            || row[0] === '');
+        const invalid = csvBody.some((row) => row.length !== csvHeader.length ||
+            csvHeader[0] !== "address" ||
+            row[0] === "");
         if (invalid) {
             throw new Error("CSVフォーマットが不正です");
         }
         const addresses = csvBody.map((row) => {
-            const result = { address: '' };
+            const result = { address: "" };
             row.forEach((col, index) => {
                 result[csvHeader[index]] = col;
             });
@@ -85,10 +87,10 @@ const loadAddressesFromCsv = (csvPath) => new Promise((resolve, reject) => {
         });
         data.push(...addresses);
     }))
-        .on('error', error => {
+        .on("error", (error) => {
         reject(error);
     })
-        .on('end', () => {
+        .on("end", () => {
         resolve(data);
     });
 });
@@ -99,9 +101,8 @@ const exportCsv = (addressCsv) => new Promise((resolve, reject) => {
     }
     const csvData = [
         Object.keys(addressCsv[0]),
-        ...addressCsv.map(addressRow => Object.values(addressRow)),
+        ...addressCsv.map((addressRow) => Object.values(addressRow)),
     ];
-    console.log(csvData);
     csv.stringify(csvData, (error, output) => {
         if (error) {
             reject(error);
@@ -110,12 +111,12 @@ const exportCsv = (addressCsv) => new Promise((resolve, reject) => {
         const dateNow = new Date();
         const now = `${dateNow.getFullYear()}${dateNow.getMonth() + 1}${dateNow.getDate()}${dateNow.getHours()}${dateNow.getMinutes()}${dateNow.getSeconds()}`;
         const fileName = `geocode_${now}.csv`;
-        fs.writeFile(fileName, output, (error) => {
-            if (error) {
-                reject(error);
+        fs.writeFile(fileName, output, (er) => {
+            if (er) {
+                reject(er);
                 return;
             }
-            console.log(fileName + 'を出力しました。');
+            console.log(fileName + "を出力しました。");
             resolve();
         });
     });
