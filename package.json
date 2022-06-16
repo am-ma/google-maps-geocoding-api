@@ -7,9 +7,9 @@
     "get-geocode": "dist/get-geocode.js"
   },
   "scripts": {
-    "precommit": "lint-staged",
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "prepare": "husky install"
   },
   "author": "am-ma",
   "license": "ISC",
@@ -33,9 +33,8 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "tsc --noEmit",
-      "tslint -p tsconfig.json -c tslint.json --fix",
-      "git add"
+      "prettier --write",
+      "tslint -p tsconfig.json -c tslint.json --fix"
     ]
   }
 }
