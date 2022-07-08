@@ -22,5 +22,5 @@ $ npm link
 食わせるCSVのフォーマットは`src/address.example.csv`を参照
 
 ```sh
-$ github-issues /path/to/address.csv
+$ get-geocode /path/to/address.csv
 ```
