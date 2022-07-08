@@ -83,6 +83,14 @@ const loadAddressesFromCsv = (csvPath: string): Promise<TAddressCsvRow[]> =>
       });
   });
 
+const makeExportFileName = () => {
+  const dateNow = new Date();
+  const now = `${dateNow.getFullYear()}${
+    dateNow.getMonth() + 1
+  }${dateNow.getDate()}${dateNow.getHours()}${dateNow.getMinutes()}${dateNow.getSeconds()}`;
+  return `geocode_${now}.csv`;
+};
+
 const exportCsv = (addressCsv: TAddressCsvRow[]): Promise<void> =>
   new Promise((resolve, reject) => {
     if (addressCsv.length <= 0) {
@@ -97,11 +105,7 @@ const exportCsv = (addressCsv: TAddressCsvRow[]): Promise<void> =>
         reject(error);
         return;
       }
-      const dateNow = new Date();
-      const now = `${dateNow.getFullYear()}${
-        dateNow.getMonth() + 1
-      }${dateNow.getDate()}${dateNow.getHours()}${dateNow.getMinutes()}${dateNow.getSeconds()}`;
-      const fileName = `geocode_${now}.csv`;
+      const fileName = makeExportFileName();
       fs.writeFile(fileName, output, (er) => {
         if (er) {
           reject(er);
