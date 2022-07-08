@@ -25,6 +25,35 @@ const getGeocode = async (address: string): Promise<LatLngLiteral> => {
 };
 
 const getGeocodeByAddressCsv = async (csvPath: string) => {
+  const addressCsv = await loadAddressesFromCsv(csvPath);
+
+  const stream = fs.createWriteStream(makeExportFileName());
+  stream.on("error", (err) => {
+    if (err) {
+      throw err;
+    }
+  });
+  try {
+    stream.write([...Object.keys(addressCsv[0]), "lat", "lng"].join(","));
+    stream.write("\n");
+    for (const addressRow of addressCsv) {
+      const { lat, lng } = await getGeocode(addressRow.address);
+
+      const data = [
+        ...Object.values(addressRow),
+        lat.toString(),
+        lng.toString(),
+      ];
+      stream.write(data.join(","));
+      stream.write("\n");
+    }
+  } catch (error) {
+    throw new Error(error);
+  } finally {
+    stream.end();
+  }
+};
+const _getGeocodeByAddressCsv = async (csvPath: string) => {
   try {
     const addressCsv = await loadAddressesFromCsv(csvPath);
 
