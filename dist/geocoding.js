@@ -37,7 +37,7 @@ const getGeocode = async (address) => {
                 address,
                 key: getApiKey(),
             },
-            timeout: 500, // milliseconds
+            timeout: 1000, // milliseconds
         });
         return result.data.results[0].geometry.location;
     }

@@ -15,12 +15,11 @@ const getGeocode = async (address: string): Promise<LatLngLiteral> => {
         address,
         key: getApiKey(),
       },
-      timeout: 500, // milliseconds
+      timeout: 1000, // milliseconds
     });
 
     return result.data.results[0].geometry.location;
   } catch (error) {
-    console.log(error);
     throw new Error(error);
   }
 };
