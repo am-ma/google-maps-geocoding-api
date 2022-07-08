@@ -42,12 +42,41 @@ const getGeocode = async (address) => {
         return result.data.results[0].geometry.location;
     }
     catch (error) {
-        console.log(error);
         throw new Error(error);
     }
 };
 exports.getGeocode = getGeocode;
 const getGeocodeByAddressCsv = async (csvPath) => {
+    const addressCsv = await loadAddressesFromCsv(csvPath);
+    const stream = fs.createWriteStream(makeExportFileName());
+    stream.on("error", (err) => {
+        if (err) {
+            throw err;
+        }
+    });
+    try {
+        stream.write([...Object.keys(addressCsv[0]), "lat", "lng"].join(","));
+        stream.write("\n");
+        for (const addressRow of addressCsv) {
+            const { lat, lng } = await getGeocode(addressRow.address);
+            const data = [
+                ...Object.values(addressRow),
+                lat.toString(),
+                lng.toString(),
+            ];
+            stream.write(data.join(","));
+            stream.write("\n");
+        }
+    }
+    catch (error) {
+        throw new Error(error);
+    }
+    finally {
+        stream.end();
+    }
+};
+exports.getGeocodeByAddressCsv = getGeocodeByAddressCsv;
+const _getGeocodeByAddressCsv = async (csvPath) => {
     try {
         const addressCsv = await loadAddressesFromCsv(csvPath);
         const data = addressCsv.map(async (addressRow) => {
@@ -65,7 +94,6 @@ const getGeocodeByAddressCsv = async (csvPath) => {
         throw new Error(error);
     }
 };
-exports.getGeocodeByAddressCsv = getGeocodeByAddressCsv;
 const loadAddressesFromCsv = (csvPath) => new Promise((resolve, reject) => {
     const data = [];
     fs.createReadStream(csvPath)
@@ -95,6 +123,11 @@ const loadAddressesFromCsv = (csvPath) => new Promise((resolve, reject) => {
     });
 });
 exports.loadAddressesFromCsv = loadAddressesFromCsv;
+const makeExportFileName = () => {
+    const dateNow = new Date();
+    const now = `${dateNow.getFullYear()}${dateNow.getMonth() + 1}${dateNow.getDate()}${dateNow.getHours()}${dateNow.getMinutes()}${dateNow.getSeconds()}`;
+    return `geocode_${now}.csv`;
+};
 const exportCsv = (addressCsv) => new Promise((resolve, reject) => {
     if (addressCsv.length <= 0) {
         throw new Error("CSVが空です。");
@@ -108,9 +141,7 @@ const exportCsv = (addressCsv) => new Promise((resolve, reject) => {
             reject(error);
             return;
         }
-        const dateNow = new Date();
-        const now = `${dateNow.getFullYear()}${dateNow.getMonth() + 1}${dateNow.getDate()}${dateNow.getHours()}${dateNow.getMinutes()}${dateNow.getSeconds()}`;
-        const fileName = `geocode_${now}.csv`;
+        const fileName = makeExportFileName();
         fs.writeFile(fileName, output, (er) => {
             if (er) {
                 reject(er);
